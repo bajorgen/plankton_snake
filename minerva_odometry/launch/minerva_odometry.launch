@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="minerva_odometry" exec="odometry.py" name="odometry" output="screen">
+  </node>
+</launch>
