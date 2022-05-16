@@ -29,66 +29,129 @@
     The original values, [0.0822, -0.00773, 0.3872] however, seem to
     assume NWU (otherwise cob is below cog?).
     -->
-    <xacro:property name="cob" value="0.0 0.0 0.3"/>
-    <xacro:property name="mass" value="1862.87"/>
-    <xacro:property name="length" value="0.5" />
+    <!--<xacro:property name="mass" value="199"/>-->
+    <xacro:property name="length" value="6.181" />
+    <xacro:property name="length_1" value="0.494"/>
+    <xacro:property name="length_2" value="1.185"/>
+    <xacro:property name="length_3" value="1.435"/>
+    <xacro:property name="length_4" value="1.185"/>
+    <xacro:property name="length_5" value="0.740"/>
+    <xacro:property name="length_joint" value="0.28575"/>
     <xacro:property name="radius" value="0.1" />
+
+    <xacro:property name="cob" value="0.0 0.0 0.03"/>
+    <xacro:property name="cob_1" value="0.0 0.0 0.025"/>
+    <xacro:property name="cob_2" value="0.0 0.0 0.025"/>
+    <xacro:property name="cob_3" value="0.0 0.0 0.025"/>
+    <xacro:property name="cob_4" value="0.0 0.0 0.025"/>
+    <xacro:property name="cob_5" value="0.0 0.0 0.025"/>
 
     <!-- Volume, see p.31 in Berg2012 -->
     <xacro:property name="volume" value="${pi*radius*radius*length}"/>
+    <xacro:property name="volume_1" value="${pi*radius*radius*length_1}"/>
+    <xacro:property name="volume_2" value="${pi*radius*radius*length_2}"/>
+    <xacro:property name="volume_3" value="${pi*radius*radius*length_3}"/>
+    <xacro:property name="volume_4" value="${pi*radius*radius*length_4}"/>
+    <xacro:property name="volume_5" value="${pi*radius*radius*length_5}"/>
 
     <xacro:macro name="minerva_hydro_model" params="namespace">
+<!-- Straight -->
+<!-- 
+      <link name="${namespace}/base_link">
+        <neutrally_buoyant>1</neutrally_buoyant>
+        <volume>${volume}</volume>
+        <cylinder radius="${radius}" length="${length}"/>
+        <center_of_buoyancy>${cob}</center_of_buoyancy>
+    <hydrodynamic_model>
+      <type>fossen</type>
+    
+      <added_mass>
+        29 0 0 0 0 0
+        0 322 0 0 0 0
+        0 0 326 0 0 0
+        0 0 0 0 0 0
+        0 0 0 0 520 0
+        0 0 0 0 0 520 
+      </added_mass>
+   
+      <linear_damping>
+        -233.6 -292 -64 -16 -600 -600 
+      </linear_damping>
+
+      <quadratic_damping>
+        -22 -54 -63 -8 -148 -100 
+      </quadratic_damping>
+
+    </hydrodynamic_model>
+  </link>
+-->
+   <!-- U-Shape -->   
         <link name="${namespace}/base_link">
-            <neutrally_buoyant>0</neutrally_buoyant>
-            <volume>${volume}</volume>
-            <cylinder radius="${radius}" length="${length}"/>
-            <center_of_buoyancy>${cob}</center_of_buoyancy>
+            <neutrally_buoyant>1</neutrally_buoyant>
+            <volume>${volume_1}</volume>
+            <cylinder radius="${radius}" length="${length_1}"/>
+            <center_of_buoyancy>${cob_1}</center_of_buoyancy>
         <hydrodynamic_model>
           <type>fossen</type>
         
-            <added_mass>
-              293 0 0 0 0 0
-              0 302 0 0 0 0
-              0 0 326 0 0 0
-              0 0 0 52 0 0
-              0 0 0 0 52 0
-              0 0 0 0 0 57 
-            </added_mass>
-         
-            <linear_damping>
-              -233.6 -292 -64 -16 -30 -25 
-            </linear_damping>
-
-            <quadratic_damping>
-              -292 -584 -635 -84 -148 -100 
-            </quadratic_damping>
-          </hydrodynamic_model>
-        </link>
-
-        
-        <link name="${namespace}/link_2">
-          <neutrally_buoyant>0</neutrally_buoyant>
-          <volume>${volume}</volume>
-          <cylinder radius="${radius}" length="${length}"/>
-          <center_of_buoyancy>${cob}</center_of_buoyancy>
-      <hydrodynamic_model>
-        <type>fossen</type>
-      
           <added_mass>
-            293 0 0 0 0 0
-            0 302 0 0 0 0
-            0 0 326 0 0 0
-            0 0 0 52 0 0
-            0 0 0 0 52 0
-            0 0 0 0 0 57 
+            2 0 0 0 0 0
+            0 16 0 0 0 0
+            0 0 16 0 0 0
+            0 0 0 0 0 0
+            0 0 0 0 0.3 0
+            0 0 0 0 0 0.3 
           </added_mass>
        
           <linear_damping>
-            -233.6 -292 -64 -16 -30 -25 
+            -48 0 0 0 0 0
+            0 -477 0 0 0 0 
+            0 0 -477 0 0 0
+            0 0 0 -1 0 0
+            0 0 0 0 -79 0
+            0 0 0 0 0 -79 
           </linear_damping>
 
           <quadratic_damping>
-            -292 -584 -635 -84 -148 -100 
+            -9 0 0 0 0 0
+            0 -19 0 0 0 0
+            0 0 -19 0 0 0
+            0 0 0 -0.5 0 0
+            0 0 0 0 -7 0
+            0 0 0 0 0 -7 
+          </quadratic_damping>
+        </hydrodynamic_model>
+      </link>
+
+         
+        <link name="${namespace}/link_2">
+          <neutrally_buoyant>1</neutrally_buoyant>
+          <volume>${volume_2}</volume>
+          <cylinder radius="${radius}" length="${length_2}"/>
+          <center_of_buoyancy>${cob_2}</center_of_buoyancy>
+      <hydrodynamic_model>
+        <type>fossen</type>
+      
+        <added_mass>
+          5 0 0 0 0 0
+          0 38 0 0 0 0
+          0 0 38 0 0 0
+          0 0 0 0 0 0
+          0 0 0 0 4.5 0
+          0 0 0 0 0 4.5 
+        </added_mass>
+       
+        <linear_damping>
+          -114 0 0 0 0 0
+          0 -1144 0 0 0 0 
+          0 0 -1144 0 0 0
+          0 0 0 -2.3 0 0
+          0 0 0 0 -536 0
+          0 0 0 0 0 -536 
+        </linear_damping>
+
+          <quadratic_damping>
+            -11 -114 -114 -1 -53 -53 
           </quadratic_damping>
         </hydrodynamic_model>
       </link>
@@ -96,57 +159,72 @@
 
 
       <link name="${namespace}/link_3">
-        <neutrally_buoyant>0</neutrally_buoyant>
-        <volume>${volume}</volume>
-        <cylinder radius="${radius}" length="${length}"/>
-        <center_of_buoyancy>${cob}</center_of_buoyancy>
+        <neutrally_buoyant>1</neutrally_buoyant>
+        <volume>${volume_3}</volume>
+        <cylinder radius="${radius}" length="${length_3}"/>
+        <center_of_buoyancy>${cob_3}</center_of_buoyancy>
     <hydrodynamic_model>
       <type>fossen</type>
     
-        <added_mass>
-          293 0 0 0 0 0
-          0 302 0 0 0 0
-          0 0 326 0 0 0
-          0 0 0 52 0 0
-          0 0 0 0 52 0
-          0 0 0 0 0 57 
-        </added_mass>
+      <added_mass>
+        5.6 0 0 0 0 0
+        0 46 0 0 0 0
+        0 0 46 0 0 0
+        0 0 0 0 0 0
+        0 0 0 0 8 0
+        0 0 0 0 0 8 
+      </added_mass>
      
-        <linear_damping>
-          -233.6 -292 -64 -16 -30 -25 
-        </linear_damping>
+      <linear_damping>
+        -138 0 0 0 0 0
+        0 -1386 0 0 0 0 
+        0 0 -1386 0 0 0
+        0 0 0 -2.8 0 0
+        0 0 0 0 -951 0
+        0 0 0 0 0 -951 
+      </linear_damping>
 
-        <quadratic_damping>
-          -292 -584 -635 -84 -148 -100 
-        </quadratic_damping>
+      <quadratic_damping>
+        -13 0 0 0 0 0
+        0 -139 0 0 0 0
+        0 0 -139 0 0 0
+        0 0 0 -1 0 0
+        0 0 0 0 -95 0
+        0 0 0 0 0 -95 
+      </quadratic_damping>
       </hydrodynamic_model>
     </link>
       
 
 
     <link name="${namespace}/link_4">
-      <neutrally_buoyant>0</neutrally_buoyant>
-      <volume>${volume}</volume>
-      <cylinder radius="${radius}" length="${length}"/>
-      <center_of_buoyancy>${cob}</center_of_buoyancy>
+      <neutrally_buoyant>1</neutrally_buoyant>
+      <volume>${volume_4}</volume>
+      <cylinder radius="${radius}" length="${length_4}"/>
+      <center_of_buoyancy>${cob_4}</center_of_buoyancy>
   <hydrodynamic_model>
     <type>fossen</type>
   
-      <added_mass>
-        293 0 0 0 0 0
-        0 302 0 0 0 0
-        0 0 326 0 0 0
-        0 0 0 52 0 0
-        0 0 0 0 52 0
-        0 0 0 0 0 57 
-      </added_mass>
+    <added_mass>
+      5 0 0 0 0 0
+      0 38 0 0 0 0
+      0 0 38 0 0 0
+      0 0 0 0 0 0
+      0 0 0 0 4.5 0
+      0 0 0 0 0 4.5 
+    </added_mass>
    
-      <linear_damping>
-        -233.6 -292 -64 -16 -30 -25 
-      </linear_damping>
+    <linear_damping>
+      -114 0 0 0 0 0
+      0 -1144 0 0 0 0 
+      0 0 -1144 0 0 0
+      0 0 0 -2.3 0 0
+      0 0 0 0 -536 0
+      0 0 0 0 0 -536 
+    </linear_damping>
 
       <quadratic_damping>
-        -292 -584 -635 -84 -148 -100 
+        -11 -114 -114 -1 -53 -53 
       </quadratic_damping>
     </hydrodynamic_model>
   </link>
@@ -154,33 +232,43 @@
 
 
   <link name="${namespace}/link_5">
-    <neutrally_buoyant>0</neutrally_buoyant>
-    <volume>${volume}</volume>
-    <cylinder radius="${radius}" length="${length}"/>
-    <center_of_buoyancy>${cob}</center_of_buoyancy>
+    <neutrally_buoyant>1</neutrally_buoyant>
+    <volume>${volume_5}</volume>
+    <cylinder radius="${radius}" length="${length_5}"/>
+    <center_of_buoyancy>${cob_5}</center_of_buoyancy>
 <hydrodynamic_model>
   <type>fossen</type>
 
-    <added_mass>
-      293 0 0 0 0 0
-      0 302 0 0 0 0
-      0 0 326 0 0 0
-      0 0 0 52 0 0
-      0 0 0 0 52 0
-      0 0 0 0 0 57 
-    </added_mass>
+  <added_mass>
+    3 0 0 0 0 0
+    0 24 0 0 0 0
+    0 0 24 0 0 0
+    0 0 0 0 0 0
+    0 0 0 0 1 0
+    0 0 0 0 0 1 
+  </added_mass>
  
-    <linear_damping>
-      -233.6 -292 -64 -16 -30 -25 
-    </linear_damping>
+  <linear_damping>
+    -71 0 0 0 0 0
+    0 -714 0 0 0 0 
+    0 0 -714 0 0 0
+    0 0 0 -1.4 0 0
+    0 0 0 0 -130 0
+    0 0 0 0 0 -130 
+  </linear_damping>
 
-    <quadratic_damping>
-      -292 -584 -635 -84 -148 -100 
-    </quadratic_damping>
+  <quadratic_damping>
+    -7 0 0 0 0 0
+    0 -71 0 0 0 0
+    0 0 -71 0 0 0
+    0 0 0 -0.7 0 0
+    0 0 0 0 -13 0
+    0 0 0 0 0 -13 
+  </quadratic_damping>
   </hydrodynamic_model>
 </link>
+ 
 
-
-    </xacro:macro>
+  </xacro:macro>
     
 </robot>
