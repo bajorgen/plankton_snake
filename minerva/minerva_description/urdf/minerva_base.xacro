@@ -22,15 +22,7 @@
 -->
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <!--
-      The RexROV meshes and hydrodynamic parameters are based on the parameters and dimensions
-      from the SF 30k.
-
-      References:
-        [1] Dukan, Fredrik. "ROV Motion Control Systems." PhD Thesis, NTNU, 2014.
-        [2] Berg, Viktor. Development and Commissioning of a DP system for ROV SF 30k. MS
-            thesis. Institutt for marin teknikk, 2012.
-  -->
+  
   <!-- includes -->
   <xacro:include filename="$(find uuv_descriptions)/urdf/common.urdf.xacro"/>
   <xacro:include filename="$(find uuv_sensor_ros_plugins)/urdf/sensor_snippets.xacro"/>
@@ -40,21 +32,38 @@
   <xacro:property name="namespace" value="minerva"/>
   <xacro:property name="visual_mesh_file" value="file://$(find minerva_description)/meshes/minerva_v2.dae"/>
   <xacro:property name="prop_mesh_file" value="file://$(find minerva_description)/meshes/prop.dae"/>
+  <xacro:property name="base_link_mesh_file" value="file://$(find minerva_description)/meshes/base_link_color.dae"/>
+  <xacro:property name="link_2_mesh_file" value="file://$(find minerva_description)/meshes/link_2_color.dae"/>
+  <xacro:property name="link_3_mesh_file" value="file://$(find minerva_description)/meshes/link_3_color.dae"/>
+  <xacro:property name="link_5_mesh_file" value="file://$(find minerva_description)/meshes/link_5_color.dae"/>
+  <xacro:property name="eelume_mesh_file" value="file://$(find minerva_description)/meshes/snake_full.dae"/>
 
   <!-- Mass, see p.28 in Berg2012 -->
-  <xacro:property name="mass" value="1862.87"/>
-  <xacro:property name="length" value="0.5" />
+  <xacro:property name="mass" value="199"/>
+  <xacro:property name="length_1" value="0.494"/>
+  <xacro:property name="length_2" value="1.185"/>
+  <xacro:property name="length_3" value="1.435"/>
+  <xacro:property name="length_4" value="1.185"/>
+  <xacro:property name="length_5" value="0.740"/>
+  <xacro:property name="length_joint" value="0.28575"/>
   <xacro:property name="radius" value="0.1" />
+  <xacro:property name="length" value="6.181"/>
+  <xacro:property name="mass_1" value="${5*mass/(length-length_joint)*length_1}"/>
+  <xacro:property name="mass_2" value="${5*mass/(length-length_joint)*length_2}"/>
+  <xacro:property name="mass_3" value="${5*mass/(length-length_joint)*length_3}"/>
+  <xacro:property name="mass_4" value="${5*mass/(length-length_joint)*length_4}"/>
+  <xacro:property name="mass_5" value="${5*mass/(length-length_joint)*length_5}"/>
 
+
+  <!-- Torpedo-Shape-->
+  <!-- 
   <xacro:macro name="minerva_base" params="namespace *gazebo inertial_reference_frame">
-    <!-- base_link according to ROS conventions: x forward, z up -->
     <link name="${namespace}/base_link">
       <visual>
         <origin xyz="${length/2} 0 ${radius}" rpy="0 ${pi/2} 0"/>
         <geometry>                
-            <cylinder length="${length}" radius="${radius}" />
+          <mesh filename="${eelume_mesh_file}" scale="1 1 1"/>
         </geometry>
-        <material name="orange" />
       </visual>
       <collision>
         <origin xyz="${length/2} 0 ${radius}" rpy="0 ${pi/2} 0"/>
@@ -71,99 +80,193 @@
       </inertial>
     </link>
 
+    <xacro:insert_block name="gazebo"/>
+
+    <xacro:include filename="$(find minerva_description)/urdf/minerva_actuators.xacro"/>
+    <xacro:include filename="$(find minerva_description)/urdf/minerva_sensors.xacro"/>
+
+  </xacro:macro>
+-->
+
+
+
+
+
+
+
+
+
+  <!-- U-Shape -->
+  <!-- -->
+  <xacro:macro name="minerva_base" params="namespace *gazebo inertial_reference_frame">
+    <link name="${namespace}/base_link">
+      <visual name="mesh_1">
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>                
+          <mesh filename="${base_link_mesh_file}" scale="1 1 1"/>
+        </geometry>
+      </visual>
+      <visual name="joint">
+        <origin xyz="${length_1/2+length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black">
+          <color rgba="0.0 0.0 0.0 0.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="${length_1/2} 0 ${radius}" rpy="0 ${pi/2} 0"/>
+        <geometry>
+            <cylinder length="${length_1}" radius="${radius}" />
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="${mass_1}" />
+        <origin xyz="${length_1/2} 0 ${radius}" rpy="0 ${pi/2} 0"/>
+        <inertia ixx="${(1/12) * mass_1 * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass_1 * (3*radius*radius + length*length)}" iyz="0.0"
+              izz="${(1/2) * mass_1 * (radius*radius)}" />
+      </inertial>
+    </link>
+    
+
+
     <joint name="${namespace}/joint_12" type="revolute">
-      <origin xyz="${length} 0 ${radius}" rpy="0 0 0"/>
+      <origin xyz="${length_1/2 + length_joint/2} 0 0" rpy="0 0 0"/>
       <parent link="${namespace}/base_link"/>
       <child link="${namespace}/link_2"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="${-pi/2}" upper="${pi/2}" effort="100" velocity="100"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${pi/4-0.001}" upper="${pi/4+0.001}" effort="100" velocity="100"/>
     </joint>
 
 
     <link name="${namespace}/link_2">
       <visual>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_2+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
           <geometry>                
-              <cylinder length="${length}" radius="${radius}" />
+            <mesh filename="${link_2_mesh_file}" scale="1 1 1"/>
           </geometry>
       </visual>
+      <visual name="joint_1">
+        <origin xyz="${length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <visual name="joint_2">
+        <origin xyz="${length_2+3*length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
       <collision>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_2+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
           <geometry>
-              <cylinder length="${length}" radius="${radius}" />
+              <cylinder length="${length_2}" radius="${radius}" />
           </geometry>
       </collision>
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
-        <inertia ixx="${(1/12) * mass * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
-              iyy="${(1/12) * mass * (3*radius*radius + length*length)}" iyz="0.0"
-              izz="${(1/2) * mass * (radius*radius)}" />
+        <mass value="${mass_2}" />
+        <origin xyz="${(length_2+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <inertia ixx="${(1/12) * mass_2 * (3*radius*radius + length_2*length_2)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass_2 * (3*radius*radius + length_2*length_2)}" iyz="0.0"
+              izz="${(1/2) * mass_2 * (radius*radius)}" />
       </inertial>
     </link>
 
 
     <joint name="${namespace}/joint_23" type="revolute">
-      <origin xyz="${length} 0 0" rpy="0 0 0"/>
+      <origin xyz="${length_2+length_joint} 0 0" rpy="0 0 0"/>
       <parent link="${namespace}/link_2"/>
       <child link="${namespace}/link_3"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="${-pi/2}" upper="${pi/2}" effort="100" velocity="100"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${pi/4-0.001}" upper="${pi/4+0.001}" effort="100" velocity="100"/>
     </joint>
 
 
     <link name="${namespace}/link_3">
       <visual>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_3+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/> 
           <geometry>                
-              <cylinder length="${length}" radius="${radius}" />
+            <mesh filename="${link_3_mesh_file}" scale="1 1 1"/>
           </geometry>
       </visual>
+      <visual name="joint_1">
+        <origin xyz="${length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <visual name="joint_2">
+        <origin xyz="${length_3+3*length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
       <collision>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_3+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
           <geometry>
-              <cylinder length="${length}" radius="${radius}" />
+              <cylinder length="${length_3}" radius="${radius}" />
           </geometry>
       </collision>
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
-        <inertia ixx="${(1/12) * mass * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
-              iyy="${(1/12) * mass * (3*radius*radius + length*length)}" iyz="0.0"
-              izz="${(1/2) * mass * (radius*radius)}" />
+        <mass value="${mass_3}" />
+        <origin xyz="${(length_3+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <inertia ixx="${(1/12) * mass_3 * (3*radius*radius + length_3*length_3)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass_3 * (3*radius*radius + length_3*length_3)}" iyz="0.0"
+              izz="${(1/2) * mass_3 * (radius*radius)}" />
       </inertial>
     </link>
 
 
 
     <joint name="${namespace}/joint_34" type="revolute">
-      <origin xyz="${length} 0 0" rpy="0 0 0"/>
+      <origin xyz="${length_3+length_joint} 0 0" rpy="0 0 0"/>
       <parent link="${namespace}/link_3"/>
       <child link="${namespace}/link_4"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="${-pi/2}" upper="${pi/2}" effort="100" velocity="100"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${pi/4-0.001}" upper="${pi/4+0.001}" effort="100" velocity="100"/>
     </joint>
 
 
     <link name="${namespace}/link_4">
       <visual>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_4+length_joint)/2} 0 0" rpy="0 ${pi/2} ${pi}"/>
           <geometry>                
-              <cylinder length="${length}" radius="${radius}" />
+            <mesh filename="${link_2_mesh_file}" scale="1 1 1"/>
           </geometry>
       </visual>
+      <visual name="joint_1">
+        <origin xyz="${length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <visual name="joint_2">
+        <origin xyz="${length_4+3*length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
       <collision>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_4+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
           <geometry>
-              <cylinder length="${length}" radius="${radius}" />
+              <cylinder length="${length_4}" radius="${radius}" />
           </geometry>
       </collision>
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
-        <inertia ixx="${(1/12) * mass * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
-              iyy="${(1/12) * mass * (3*radius*radius + length*length)}" iyz="0.0"
-              izz="${(1/2) * mass * (radius*radius)}" />
+        <mass value="${mass_4}" />
+        <origin xyz="${(length_4+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <inertia ixx="${(1/12) * mass_4 * (3*radius*radius + length_4*length_4)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass_4 * (3*radius*radius + length_4*length_4)}" iyz="0.0"
+              izz="${(1/2) * mass_4 * (radius*radius)}" />
       </inertial>
     </link>
 
@@ -171,59 +274,55 @@
 
 
     <joint name="${namespace}/joint_45" type="revolute">
-      <origin xyz="${length} 0 0" rpy="0 0 0"/>
+      <origin xyz="${length_4+length_joint} 0 0" rpy="0 0 0"/>
       <parent link="${namespace}/link_4"/>
       <child link="${namespace}/link_5"/>
-      <axis xyz="0 0 1"/>
-      <limit lower="${-pi/2}" upper="${pi/2}" effort="100" velocity="100"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${pi/4-0.001}" upper="${pi/4+0.001}" effort="100" velocity="100"/>
     </joint>
 
 
+  
     <link name="${namespace}/link_5">
       <visual>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_5+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/> 
           <geometry>                
-              <cylinder length="${length}" radius="${radius}" />
+            <mesh filename="${link_5_mesh_file}" scale="1 1 1"/>
           </geometry>
       </visual>
+      <visual name="joint_test">
+        <origin xyz="${length_joint/4} 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${radius}" length="${length_joint/2}"/>
+        </geometry>
+      </visual>
       <collision>
-          <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
+          <origin xyz="${(length_5+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
           <geometry>
-              <cylinder length="${length}" radius="${radius}" />
+              <cylinder length="${length_5}" radius="${radius}" />
           </geometry>
       </collision>
       <inertial>
-        <mass value="${mass}" />
-        <origin xyz="${length/2} 0 0" rpy="0 ${pi/2} 0"/>
-        <inertia ixx="${(1/12) * mass * (3*radius*radius + length*length)}" ixy="0.0" ixz="0.0"
-              iyy="${(1/12) * mass * (3*radius*radius + length*length)}" iyz="0.0"
-              izz="${(1/2) * mass * (radius*radius)}" />
+        <mass value="${mass_5}" />
+        <origin xyz="${(length_5+length_joint)/2} 0 0" rpy="0 ${pi/2} 0"/>
+        <inertia ixx="${(1/12) * mass_5 * (3*radius*radius + length_5*length_5)}" ixy="0.0" ixz="0.0"
+              iyy="${(1/12) * mass_5 * (3*radius*radius + length_5*length_5)}" iyz="0.0"
+              izz="${(1/2) * mass_5 * (radius*radius)}" />
       </inertial>
     </link>
 
-
-
-    <!-- Set up hydrodynamic plugin given as input parameter -->
+    
     <xacro:insert_block name="gazebo"/>
 
-    <!-- optional: plugin to test compare Gazebo's returned accelerations
-    <gazebo>
-      <plugin name="${namespace}_test_plugin" filename="libuuv_accelerations_test_plugin.so">
-        <link_name>${namespace}/base_link</link_name>
-      </plugin>
-    </gazebo> -->
 
-    <!-- Experiment with adding colors-->
-  <gazebo reference="${namespace}/link_2">
-    <material>Gazebo/Blue</material>
-  </gazebo>
-
-  <gazebo reference="${namespace}/link_4">
-    <material>Gazebo/Blue</material>
-  </gazebo>
 
     <xacro:include filename="$(find minerva_description)/urdf/minerva_actuators.xacro"/>
     <xacro:include filename="$(find minerva_description)/urdf/minerva_sensors.xacro"/>
 
   </xacro:macro>
+
+
+
+
+
 </robot>
