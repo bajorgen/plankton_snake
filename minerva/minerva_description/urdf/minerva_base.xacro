@@ -48,11 +48,11 @@
   <xacro:property name="length_joint" value="0.28575"/>
   <xacro:property name="radius" value="0.1" />
   <xacro:property name="length" value="6.181"/>
-  <xacro:property name="mass_1" value="${5*mass/(length-length_joint)*length_1}"/>
-  <xacro:property name="mass_2" value="${5*mass/(length-length_joint)*length_2}"/>
-  <xacro:property name="mass_3" value="${5*mass/(length-length_joint)*length_3}"/>
-  <xacro:property name="mass_4" value="${5*mass/(length-length_joint)*length_4}"/>
-  <xacro:property name="mass_5" value="${5*mass/(length-length_joint)*length_5}"/>
+  <xacro:property name="mass_1" value="${mass/(length-4*length_joint)*length_1}"/>
+  <xacro:property name="mass_2" value="${mass/(length-4*length_joint)*length_2}"/>
+  <xacro:property name="mass_3" value="${mass/(length-4*length_joint)*length_3}"/>
+  <xacro:property name="mass_4" value="${mass/(length-4*length_joint)*length_4}"/>
+  <xacro:property name="mass_5" value="${mass/(length-4*length_joint)*length_5}"/>
 
 
   <!-- Torpedo-Shape-->
