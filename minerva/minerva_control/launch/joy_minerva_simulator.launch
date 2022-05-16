@@ -1,0 +1,46 @@
+<launch>
+  <arg name="model_name" default="minerva"/>
+  <arg name="uuv_name" default="$(var model_name)"/>
+  <arg name="joy_id" default="0"/>
+
+  <!-- Launching minervas thrsuter-manager -->
+  <include file="$(find-pkg-share minerva_control)/launch/thruster_manager.launch">
+    <arg name="uuv_name" value="$(var uuv_name)" />
+    <arg name="model_name" value="$(var model_name)" />
+  </include>
+
+
+  <!-- Lanuching the controller -->
+  <group>
+    <push-ros-namespace namespace="$(var uuv_name)"/>
+    
+    <node pkg="minerva_control" exec="acceleration_control.py" name="acceleration_control"
+          output="screen">
+      <!--remove tf_prefix-->
+      <!-- <param name="tf_prefix" type="string" value="$(var uuv_name)/" /> -->
+      <param from="$(find-pkg-share minerva_control)/config/$(var model_name)/inertial.yaml"/>
+    </node>
+
+    <node pkg="minerva_control" exec="velocity_control.py" name="velocity_control"
+        output="screen">
+      <remap from="odom" to="/$(var uuv_name)/pose_gt"/>
+      <remap from="cmd_accel" to="/$(var uuv_name)/cmd_accel"/>
+      <param from="$(find-pkg-share minerva_control)/config/$(var model_name)/vel_pid_control.yaml"/>
+    </node>
+    
+    <!-- node pkg="minerva_control" exec="position_control.py" name="position_control" output="screen" -->
+      <!-- remap from="odom" to="/$(var uuv_name)/pose_gt"/ -->
+      <!-- remap from="cmd_accel" to="/$(var uuv_name)/cmd_accel"/-->
+      <!--param from="$(find-pkg-share minerva_control)/config/$(var model_name)/pos_pid_control.yaml"/ -->
+    <!-- /node -->
+  </group>
+
+
+  <!-- Lanuching the joystick -->
+  <include file="$(find-pkg-share minerva_teleop)/launch/minerva_teleop.launch">
+    <arg name="uuv_name" value="$(var uuv_name)"/>
+    <arg name="joy_id" value="$(var joy_id)"/>
+    <arg name="output_topic" value="cmd_vel"/>
+    <arg name="message_type" value="twist"/>
+  </include>
+</launch>
